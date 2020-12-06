@@ -62,7 +62,7 @@ void complementary_displacement(
     while (energy(V, T, Ur, Uc + alpha * x, dt) > curr_energy && alpha > atol) {
       alpha *= p;
     }
-    Uc += alpha * x;
+    Uc = Uc + alpha * (x - Uc);
   }
 
 // Assume the input animation and simulation use the same tetrahedron mesh
