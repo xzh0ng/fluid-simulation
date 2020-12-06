@@ -1,6 +1,7 @@
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 #include<Eigen/SparseCholesky>
+#include <igl/slice.h>
 using namespace Eigen;
 // Assume the input animation and simulation use the same tetrahedron mesh
 // 
@@ -14,6 +15,7 @@ using namespace Eigen;
 //   Ur        #V by 3 rig displacement at the current frame
 //   U_prev    #V by 3 final displacements at the last frame
 //   Udot_prev #V by 3 final speed at the last frame
+//   Uc_prev   #V by 3 complementary displacement at the previous frame
 //   J         #V*3 by m dense rig jacobian at the current frame
 //   g         #V*3 by 1 gradient of the elasticity potential
 //   H         #V*3 by #V*3 hessian of the elasticity potential
@@ -30,6 +32,7 @@ void complementary_displacement(
   const Eigen::MatrixXd & Ur,
   const Eigen::MatrixXd & U_prev,
   const Eigen::MatrixXd & Udot_prev,
+  const Eigen::MatrixXd & Uc_prev,
   const Eigen::MatrixXd & J,
   const Eigen::MatrixXd & g,
   const Eigen::SparseMatrix<double> & H,
@@ -49,10 +52,17 @@ void complementary_displacement(
     VectorXd b(dn + m);
     b << l, VectorXd::Zero(m);
     SimplicialLDLT<SparseMatrix<double>> solver;
-    Uc = solver.compute(A.sparseView()).solve(b);
+    VectorXd x_and_lambda = solver.compute(A.sparseView()).solve(b);
+    VectorXd x = x_and_lambda.head(dn);
 
     // line search
-    
+    Uc = Uc_prev;
+    double alpha = 1.0, p = 0.5, c = 1e-8, atol = 1e-8;
+    double curr_energy = energy(V, T, Ur, Uc, dt);
+    while (energy(V, T, Ur, Uc + alpha * x, dt) > curr_energy && alpha > atol) {
+      alpha *= p;
+    }
+    Uc += alpha * x;
   }
 
 // Assume the input animation and simulation use the same tetrahedron mesh
@@ -86,7 +96,8 @@ void complementary_displacement(
   Eigen::MatrixXd & Uc) {
       MatrixXd U_prev = MatrixXd::Zero(Ur.rows(), Ur.cols());
       MatrixXd Udot_prev = MatrixXd::Zero(Ur.rows(), Ur.cols());
+      MatrixXd Uc_prev = MatrixXd::Zero(Ur.rows(), Ur.cols());;
       // no external forces for now
       MatrixXd f = MatrixXd::Zero(Ur.rows(), Ur.cols());
-      complementary_displacement(V, T, M, Ur, U_prev, Udot_prev, J, g, H, dt, f, energy, Uc);
+      complementary_displacement(V, T, M, Ur, U_prev, Udot_prev, Uc_prev, J, g, H, dt, f, energy, Uc);
   }
