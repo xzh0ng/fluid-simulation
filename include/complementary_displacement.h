@@ -3,6 +3,7 @@
 #include<Eigen/SparseCholesky>
 #include <igl/slice.h>
 using namespace Eigen;
+
 // Assume the input animation and simulation use the same tetrahedron mesh
 // 
 // Given the rest mesh (V,T), at the frame t, we find the complementary displacement Uc
@@ -54,12 +55,27 @@ void complementary_displacement(
     SimplicialLDLT<SparseMatrix<double>> solver;
     VectorXd x_and_lambda = solver.compute(A.sparseView()).solve(b);
     VectorXd x = x_and_lambda.head(dn);
+    MatrixXd x_matrix = Map<MatrixXd>(x.data(), Uc.rows(), Uc.cols());
 
     // line search
     Uc = Uc_prev;
     double alpha = 1.0, p = 0.5, c = 1e-8, atol = 1e-8;
     double curr_energy = energy(V, T, Ur, Uc, dt);
-    while (energy(V, T, Ur, Uc + alpha * x, dt) > curr_energy && alpha > atol) {
+    // calculate the gradient of energy function numerically
+    auto get_energy_gradient = [&] () -> MatrixXd {
+      MatrixXd result(Uc.rows(), Uc.cols());
+      for (int i = 0; i < Uc.rows(); i++) {
+        for (int j = 0; j < Uc.cols(); j++) {
+          MatrixXd curr(Uc.rows(), Uc.cols());
+          curr(i, j) = 1e-8;
+          result(i, j) = (curr_energy - energy(V, T, Ur, Uc + curr, dt)) / 1e-8;
+        }
+      }
+      return result;
+    }
+    VectorXd energy_gradient = Map<VectorXd>(get_energy_gradient().data(), Uc.size());
+    double m = energy_gradient.transpose().dot(x);
+    while (curr_energy - energy(V, T, Ur, Uc + alpha * x_matrix, dt) >= -alpha * c * m && alpha > atol) {
       alpha *= p;
     }
     Uc = Uc + alpha * (x - Uc);
