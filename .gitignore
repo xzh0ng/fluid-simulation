@@ -35,3 +35,5 @@ build/*
 *.DS_Store
 solution/*.cpp
 .vscode/*
+.idea/*
+cmake-build-debug/*
