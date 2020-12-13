@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
-project(complementary-dynamics)
+project(fluid-simulation)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 SET(GCC_COVERAGE_COMPILE_FLAGS "-Wa,-mbig-obj")
 
@@ -22,6 +22,6 @@ endif()
 add_library(core ${SRCFILES})
 target_link_libraries(core igl::core igl::opengl igl::opengl_glfw )
 
-add_executable(complementary-dynamics "main.cpp")
+add_executable(${PROJECT_NAME} "main.cpp")
 add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
-target_link_libraries(complementary-dynamics core igl::core igl::opengl igl::opengl_glfw)
+target_link_libraries(${PROJECT_NAME} core igl::core igl::opengl igl::opengl_glfw)
