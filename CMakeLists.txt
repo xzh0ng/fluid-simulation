@@ -18,8 +18,9 @@ if(USE_SOLUTION)
 else()
   file(GLOB SRCFILES src/*.cpp)
 endif()
+file(GLOB HEADER include/*.h)
 
-add_library(core ${SRCFILES})
+add_library(core ${SRCFILES} ${HEADER})
 target_link_libraries(core igl::core igl::opengl igl::opengl_glfw )
 
 add_executable(${PROJECT_NAME} "main.cpp")
