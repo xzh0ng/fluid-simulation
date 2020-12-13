@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 2.6)
 project(fluid-simulation)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-SET(GCC_COVERAGE_COMPILE_FLAGS "-Wa,-mbig-obj")
+if(APPLE)
+  SET(GCC_COVERAGE_COMPILE_FLAGS "-Wall")
+else()
+  SET(GCC_COVERAGE_COMPILE_FLAGS "-Wa,-mbig-obj")
+endif()
 
 
 ### libIGL options: choose between header only and compiled static library
