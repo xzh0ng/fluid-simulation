@@ -1,3 +1,5 @@
+#include "trilinear_interpolation_weights.h"
+
 void trilinear_interpolation_weights(
   const int nx,
   const int ny,
@@ -6,9 +8,9 @@ void trilinear_interpolation_weights(
   const Eigen::Vector3d & P,
   Eigen::VectorXd & W)
 {
-    Vector3d idx = (P / h).array().floor();
+    Eigen::Vector3d idx = (P / h).array().floor();
     int x = idx(0), y = idx(1), z = idx(2);
-    Vector3d ds = (P / h) - idx;
+    Eigen::Vector3d ds = (P / h) - idx;
 
     // x, y, z
     W(0) = (1 - ds(0)) * (1 - ds(1)) * (1 - ds(2));
