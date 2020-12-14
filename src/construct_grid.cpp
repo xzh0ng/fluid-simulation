@@ -1,23 +1,31 @@
-#include <construct_grid.h>
-#include <trilinear_interpolation_weights.h>
+#include "construct_grid.h"
+#include "trilinear_interpolation_weights.h"
 
 using namespace Eigen;
 
 void construct_grid(Eigen::VectorXd &q, Eigen::VectorXd &qdot, double h, int nx, int ny, int nz,
+    Eigen::VectorXd &Wu, Eigen::VectorXd &Wv, Eigen::VectorXd &Ww,
     Eigen::Tensor<double, 3> &u, Eigen::Tensor<double, 3> &v, Eigen::Tensor<double, 3> &w, Eigen::Tensor<int, 3> &cell_state) {
     
     u.resize(nx - 1, ny, nz);
     v.resize(nx, ny - 1, nz);
     w.resize(nx, ny, nz - 1);
+    Wu.resize((q.size() / 3) * 8);
+    Wv.resize((q.size() / 3) * 8);
+    Ww.resize((q.size() / 3) * 8);
     cell_state.resize(nx, ny, nz);
     u.setZero();
     v.setZero();
     w.setZero();
+    Wu.setZero();
+    Wv.setZero();
+    Ww.setZero();
     cell_state.setZero();
 
     auto get_cell_indices = [&h](Vector3d position) -> Vector3i {
         return Vector3i(position(0) / h, position(1) / h, position(2) / h);
     };
+
 
     for (int i = 0; i < q.size() / 3; i++) {
         Vector3d p = q.segment<3>(3 * i);
@@ -31,17 +39,25 @@ void construct_grid(Eigen::VectorXd &q, Eigen::VectorXd &qdot, double h, int nx,
         // set to liquid cell
         cell_state(position_p(0), position_p(1), position_p(2)) = 1;
 
-        VectorXd Wu(8), Wv(8), Ww(8);
-        trilinear_interpolation_weights(nx - 1, ny, nz, h, p, Wu);
-        trilinear_interpolation_weights(nx, ny - 1, nz, h, p, Wv);
-        trilinear_interpolation_weights(nx, ny, nz - 1, h, p, Ww);
-        
+        VectorXd Wu_i(8), Wv_i(8), Ww_i(8);
+        trilinear_interpolation_weights(nx - 1, ny, nz, h, p, Wu_i);
+        trilinear_interpolation_weights(nx, ny - 1, nz, h, p, Wv_i);
+        trilinear_interpolation_weights(nx, ny, nz - 1, h, p, Ww_i);
+
+        // save interpolation weights
+        Wu.segment<8>(8 * i) = Wu_i;
+        Wv.segment<8>(8 * i) = Wv_i;
+        Ww.segment<8>(8 * i) = Ww_i;
+
+        Vector3d v_added_to_uvw(0, 0, 0);
+
         for (int a = 0; a < 2; a++) {
             for (int b = 0; b < 2; b++) {
                 for (int c = 0; c < 2; c++) {
-                    u(position_u(0) + a, position_u(1) + b, position_u(2) + c) = Wu(a + b + c) * velocity(0);
-                    v(position_v(0) + a, position_v(1) + b, position_v(2) + c) = Wv(a + b + c) * velocity(1);
-                    w(position_w(0) + a, position_w(1) + b, position_w(2) + c) = Ww(a + b + c) * velocity(2);
+                    int w_idx = c + b * 2 + a * 4;
+                    u(position_u(0) + a, position_u(1) + b, position_u(2) + c) += Wu_i(w_idx) * velocity(0);
+                    v(position_v(0) + a, position_v(1) + b, position_v(2) + c) += Wv_i(w_idx) * velocity(1);
+                    w(position_w(0) + a, position_w(1) + b, position_w(2) + c) += Ww_i(w_idx) * velocity(2);
                 }
             }
         }
