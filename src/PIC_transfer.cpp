@@ -1,5 +1,6 @@
-#include <PIC_transfer.h>
-#include <trilinear_interpolation_weights.h>
+#include "PIC_transfer.h"
+#include "trilinear_interpolation_weights.h"
+
 using namespace Eigen;
 
 void PIC_transfer(Eigen::VectorXd &q, Eigen::VectorXd &qdot, double h, int nx, int ny, int nz,
