@@ -6,7 +6,7 @@
 #include "external_force.h"
 #include "pressure_projection.h"
 #define h 0.01
-#define dt 0.1
+#define dt 0.01
 //1000 kg/m^3
 #define density 1000.0
 using namespace Eigen;
@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
     // initialization
     igl::opengl::glfw::Viewer v;
     int nx = 20, ny = 20, nz = 20;
-    int n = 10;
+    int n = 1000;
 
     auto my_rand = [] (double fMin, double fMax) -> double{
         double f = (double)rand() / RAND_MAX;
@@ -49,6 +49,16 @@ int main(int argc, char** argv) {
 
     v.data().point_size = 10;
     v.core().is_animating = true;
+
+    //add x y z line
+    Matrix<double, 1, 3> x_axis, y_axis, z_axis, origin;
+    origin.setZero();
+    x_axis << h * nx, 0, 0;
+    y_axis << 0, h * ny, 0;
+    z_axis << 0, 0, 2 * h * nz;
+    v.data().add_edges(origin, x_axis, Eigen::RowVector3d(0,0,1));
+    v.data().add_edges(origin, y_axis, Eigen::RowVector3d(0,1,0));
+    v.data().add_edges(origin, z_axis, Eigen::RowVector3d(1,0,0));
     v.launch();
     return 0;
 }
