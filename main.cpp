@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
 
     v.callback_pre_draw = [&](igl::opengl::glfw::Viewer & )->bool
     {   
-        advection(q, qdot, dt);
+        advection(q, qdot, dt, h, nx, ny, nz);
         external_force(q, qdot, g, dt);
         pressure_projection(q, qdot, h, nx, ny, nz, dt, density);
         v.data().set_points(Map<MatrixXd>(q.data(), 3, n).transpose(), color);
