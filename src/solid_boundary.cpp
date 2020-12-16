@@ -7,12 +7,6 @@ void solid_boundary(Eigen::Tensor<double, 3> &u, Eigen::Tensor<double, 3> &v,Eig
             if (w(i, j, 0) < 0) {
                 w(i, j, 0) = 0;
             }
-            if (w(i, j , 1) < 0) {
-                w(i, j, 1) = 0;
-            }
-            if (w(i, j, w.dimension(2) - 2) > 0) {
-                w(i, j, w.dimension(2) - 2) = 0;
-            }
             if (w(i, j, w.dimension(2) - 1) > 0) {
                 w(i, j, w.dimension(2) - 1) = 0;
             }
@@ -24,12 +18,6 @@ void solid_boundary(Eigen::Tensor<double, 3> &u, Eigen::Tensor<double, 3> &v,Eig
             if (v(i, 0, k) < 0) {
                 v(i, 0, k) = 0;
             }
-            if (v(i, 1, k) < 0) {
-                v(i, 1, k) = 0;
-            }
-            if (v(i, v.dimension(1) - 2, k) > 0) {
-                v(i, v.dimension(1) - 2, k) = 0;
-            }
             if (v(i, v.dimension(1) - 1, k) > 0) {
                 v(i, v.dimension(1) - 1, k) = 0;
             }
@@ -40,12 +28,6 @@ void solid_boundary(Eigen::Tensor<double, 3> &u, Eigen::Tensor<double, 3> &v,Eig
         for (unsigned k = 0; k < u.dimension(2); ++k) {
             if (u(0, j, k) < 0) {
                 u(0, j, k) = 0;
-            }
-            if (u(1, j, k) < 0) {
-                u(1, j, k) = 0;
-            }
-            if (u(u.dimension(0) - 2, j, k) > 0) {
-                u(u.dimension(0) - 2, j, k) = 0;
             }
             if (u(u.dimension(0) - 1, j, k) > 0) {
                 u(u.dimension(0) - 1, j, k) = 0;
