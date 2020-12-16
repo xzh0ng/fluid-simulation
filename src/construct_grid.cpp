@@ -30,9 +30,9 @@ void construct_grid(Eigen::VectorXd &q, Eigen::VectorXd &qdot, double h, int nx,
     u_sum.resize(nx - 1, ny, nz);
     v_sum.resize(nx, ny - 1, nz);
     w_sum.resize(nx, ny, nz - 1);
-    u_sum.setZero();
-    v_sum.setZero();
-    w_sum.setZero();
+    u_sum.setConstant(1e-5);
+    v_sum.setConstant(1e-5);
+    w_sum.setConstant(1e-5);
 
     for (int i = 0; i < q.size() / 3; i++) {
         Vector3d p = q.segment<3>(3 * i);
