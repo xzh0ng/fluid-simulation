@@ -50,21 +50,21 @@ void pressure_projection(Eigen::VectorXd &q, Eigen::VectorXd &qdot, double h, in
     for (unsigned i = 0; i < nx - 1; ++i) {
         for (unsigned j = 0; j < ny; ++j) {
             for (unsigned k = 0; k < nz; ++k) {
-                u(i, j, k) -= (p(i + 1, j, k) - p(i, j, k)) * dt / density;
+                u(i, j, k) -= (p(i + 1, j, k) - p(i, j, k)) * dt / (h * density);
             }
         }
     }
     for (unsigned i = 0; i < nx; ++i) {
         for (unsigned j = 0; j < ny - 1; ++j) {
             for (unsigned k = 0; k < nz; ++k) {
-                v(i, j, k) -= (p(i, j + 1, k) - p(i, j, k)) * dt / density;
+                v(i, j, k) -= (p(i, j + 1, k) - p(i, j, k)) * dt / (h * density);
             }
         }
     }
     for (unsigned i = 0; i < nx; ++i) {
         for (unsigned j = 0; j < ny; ++j) {
             for (unsigned k = 0; k < nz - 1; ++k) {
-                w(i, j, k) -= (p(i, j, k + 1) - p(i, j, k)) * dt / density;
+                w(i, j, k) -= (p(i, j, k + 1) - p(i, j, k)) * dt / (h * density);
             }
         }
     }
