@@ -26,6 +26,13 @@ void construct_grid(Eigen::VectorXd &q, Eigen::VectorXd &qdot, double h, int nx,
         return Vector3i(position(0) / h, position(1) / h, position(2) / h);
     };
 
+    Tensor<double, 3> u_sum, v_sum, w_sum;
+    u_sum.resize(nx - 1, ny, nz);
+    v_sum.resize(nx, ny - 1, nz);
+    w_sum.resize(nx, ny, nz - 1);
+    u_sum.setZero();
+    v_sum.setZero();
+    w_sum.setZero();
 
     for (int i = 0; i < q.size() / 3; i++) {
         Vector3d p = q.segment<3>(3 * i);
@@ -49,12 +56,14 @@ void construct_grid(Eigen::VectorXd &q, Eigen::VectorXd &qdot, double h, int nx,
         Wv.segment<8>(8 * i) = Wv_i;
         Ww.segment<8>(8 * i) = Ww_i;
 
-        Vector3d v_added_to_uvw(0, 0, 0);
-
         for (int a = 0; a < 2; a++) {
             for (int b = 0; b < 2; b++) {
                 for (int c = 0; c < 2; c++) {
                     int w_idx = c + b * 2 + a * 4;
+                    u_sum(position_u(0) + a, position_u(1) + b, position_u(2) + c) += Wu_i(w_idx);
+                    v_sum(position_v(0) + a, position_v(1) + b, position_v(2) + c) += Wv_i(w_idx);
+                    w_sum(position_w(0) + a, position_w(1) + b, position_w(2) + c) += Ww_i(w_idx);
+
                     u(position_u(0) + a, position_u(1) + b, position_u(2) + c) += Wu_i(w_idx) * velocity(0);
                     v(position_v(0) + a, position_v(1) + b, position_v(2) + c) += Wv_i(w_idx) * velocity(1);
                     w(position_w(0) + a, position_w(1) + b, position_w(2) + c) += Ww_i(w_idx) * velocity(2);
@@ -62,4 +71,7 @@ void construct_grid(Eigen::VectorXd &q, Eigen::VectorXd &qdot, double h, int nx,
             }
         }
     }
+    u /= u_sum;
+    v /= v_sum;
+    w /= w_sum;
 }
