@@ -31,7 +31,7 @@ def construct_grid(q, qdot, nx, ny, h):
         position_v = get_cell_indices(p - np.array([0, 0.5 * h]))
         position_p = get_cell_indices(p);
 
-        cell_states(position_p[0], position_p[1]) = 1
+        cell_states[position_p[0], position_p[1]] = 1
 
         wu_i = bilinear_interpolation_weight(nx - 1, ny, h, p)
 
