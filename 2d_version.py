@@ -76,11 +76,42 @@ def PIC_transfer(q, qdot, u, v, Wu, Wv, nx, ny, h):
                 qdot[2 * i + 1] = v[position_v[0] + a, position_v[1] + b] * wv_i[w_idx]
     
 
-def pressure_projection():
-    pass
+def pressure_projection(q, qdot, nx, ny, h, dt, density):
+    u, v, Wu, Wv, cell_state = construct_grid(q, qdot, nx, ny, h)
 
-def soft_boundary():
-    pass
+    # construct p
+    p = np.zeros((nx, ny))
+    p[1:nx - 1, :] = u[1:nx - 1, :] - u[0:nx - 2, :]
+    p[:, 1:ny - 1] = v[:, 1:ny - 1] - v[:, 0:ny - 2]
+    p /= h
+
+    soft_boundary(p, cell_state)
+
+    solid_boundary(u, v)
+
+    # compute gradient
+    u[0:nx - 1, :] -= (p[1:nx, :] - p[0:nx - 1, :]) * dt / (h * density)
+    v[:, 0:ny - 1] -= (p[:, 1:ny] - p[:, 0:ny - 1]) * dt / (h * density)
+
+    PIC_transfer(q, qdot, u, v, Wu, Wv, nx, ny, h)
+
+
+def soft_boundary(p, cell_state):
+    for i in range(p.shape[0]):
+        for j in range(p.shape[1]):
+            if cell_state[i, j] == 1:
+                continue
+
+            if i >= 1 and cell_state[i - 1, j] == 1:
+                p[i - 1, j] -= 0.5 * p[i, j]
+            if i + 1 < p.shape[0] and cell_state[i + 1, j] == 1:
+                p[i + 1, j] -= 0.5 * p[i, j]
+            if j >= 1 and cell_state[i, j - 1] == 1:
+                p[i, j - 1] -= 0.5 * p[i, j]
+            if j + 1 <= p.shape[1] and cell_state[i, j + 1] == 1:
+                p[i, j + 1] -= 0.5 * p[i, j]
+            
+            p[i, j] = 0
 
 def solid_boundary(u, v):
     u[0, :][u[0, :] < 0] = 0
