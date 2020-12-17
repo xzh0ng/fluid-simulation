@@ -1,10 +1,8 @@
 #include <Eigen/Core>
 
 // Inputs:
-//   nx  number of grid steps along the x-direction
-//   ny  number of grid steps along the y-direction
-//   nz  number of grid steps along the z-direction
 //   h   grid step size
+//   corner bottom-left-front corner position of grid
 //   P   query point
 // Outputs:
 //   W  8d vector contains weights for trilinear interpolation
@@ -17,9 +15,7 @@
 //   W(6) = weights for cell point(x + 1, y + 1, z)
 //   W(7) = weights for cell point(x + 1, y + 1, z + 1)
 void trilinear_interpolation_weights(
-  const int nx,
-  const int ny,
-  const int nz,
   const double h,
+  const Eigen::VectorXd corner,
   const Eigen::Vector3d & P,
   Eigen::VectorXd & W);

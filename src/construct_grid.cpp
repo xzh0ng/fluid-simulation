@@ -39,6 +39,10 @@ void construct_grid(Eigen::VectorXd &q, Eigen::VectorXd &qdot, double h, int nx,
     v_sum.setConstant(1e-5);
     w_sum.setConstant(1e-5);
 
+    Vector3d u_corner(0.5 * h, 0, 0);
+    Vector3d v_corner(0, 0.5 * h, 0);
+    Vector3d w_corner(0, 0, 0.5 * h);
+
     for (int i = 0; i < q.size() / 3; i++) {
         Vector3d p = q.segment<3>(3 * i);
         Vector3d velocity = qdot.segment<3>(3 * i);
@@ -52,9 +56,9 @@ void construct_grid(Eigen::VectorXd &q, Eigen::VectorXd &qdot, double h, int nx,
         cell_state(clamp(position_p(0), 0, nx - 1), clamp(position_p(1), 0, ny - 1), clamp(position_p(2), 0, nz - 1)) = 1;
 
         VectorXd Wu_i(8), Wv_i(8), Ww_i(8);
-        trilinear_interpolation_weights(nx - 1, ny, nz, h, p, Wu_i);
-        trilinear_interpolation_weights(nx, ny - 1, nz, h, p, Wv_i);
-        trilinear_interpolation_weights(nx, ny, nz - 1, h, p, Ww_i);
+        trilinear_interpolation_weights(h, u_corner, p, Wu_i);
+        trilinear_interpolation_weights(h, v_corner, p, Wv_i);
+        trilinear_interpolation_weights(h, w_corner, p, Ww_i);
 
         // save interpolation weights
         Wu.segment<8>(8 * i) = Wu_i;
