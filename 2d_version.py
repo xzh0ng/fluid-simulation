@@ -27,6 +27,8 @@ def construct_grid(q, qdot, nx, ny, h):
     Wu = np.zeros(len(q) * 2)
     Wv = np.zeros(len(q) * 2)
 
+    u_corner = np.array([0.5 * h, 0])
+    v_corner = np.array([0, 0.5 * h])
     for i in range(len(q) // 2):
         p = q[i * 2:i * 2 + 2]
         velocity = qdot[i * 2:i * 2 + 2]
@@ -37,8 +39,8 @@ def construct_grid(q, qdot, nx, ny, h):
         cell_states[position_p[0], position_p[1]] = 1
 
 
-        wu_i = bilinear_interpolation_weight(nx - 1, ny, h, p)
-        wv_i = bilinear_interpolation_weight(nx, ny - 1, h, p)
+        wu_i = bilinear_interpolation_weight(u_corner, h, p)
+        wv_i = bilinear_interpolation_weight(v_corner, h, p)
 
         Wu[2 * i], Wu[2 * i + 1], Wu[2 * i + 2], Wu[2 * i + 3] = wu_i[0], wu_i[1], wu_i[2], wu_i[3]
         Wv[2 * i], Wv[2 * i + 1], Wv[2 * i + 2], Wv[2 * i + 3] = wv_i[0], wv_i[1], wv_i[2], wv_i[3]
@@ -86,9 +88,10 @@ def solid_boundary(u, v):
     v[:, 0][v[:, 0] < 0] = 0
     v[:, -1][v[:, -1] > 0] = 0
 
-def bilinear_interpolation_weight(nx, ny, h, p):
-    idx = (p / h).astype(int)
-    ds = p / h - idx;
+def bilinear_interpolation_weight(corner, h, p):
+    diffs  = p - corner
+    idx = (diffs / h).astype(int)
+    ds = diffs / h - idx;
 
     weights = np.zeros(4)
     # x, y
@@ -98,6 +101,5 @@ def bilinear_interpolation_weight(nx, ny, h, p):
     # x + 1, y
     weights[2] = ds[0] * (1 - ds[1])
     # x + 1, y + 1
-    weights[3] = (1 - ds[0]) * ((1 - ds[1]))
-
+    weights[3] = ds[0] * ds[1]
     return weights
