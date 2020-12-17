@@ -95,7 +95,21 @@ def pressure_projection(q, qdot, nx, ny, h, dt, density):
 
 
 def soft_boundary(p, cell_state):
-    pass
+    for i in range(p.shape[0]):
+        for j in range(p.shape[1]):
+            if cell_state[i, j] == 1:
+                continue
+
+            if i >= 1 and cell_state[i - 1, j] == 1:
+                p[i - 1, j] -= 0.5 * p[i, j]
+            if i + 1 < p.shape[0] and cell_state[i + 1, j] == 1:
+                p[i + 1, j] -= 0.5 * p[i, j]
+            if j >= 1 and cell_state[i, j - 1] == 1:
+                p[i, j - 1] -= 0.5 * p[i, j]
+            if j + 1 <= p.shape[1] and cell_state[i, j + 1] == 1:
+                p[i, j + 1] -= 0.5 * p[i, j]
+            
+            p[i, j] = 0
 
 def solid_boundary(u, v):
     u[0, :][u[0, :] < 0] = 0
