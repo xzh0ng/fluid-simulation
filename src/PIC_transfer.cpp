@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "PIC_transfer.h"
 #include "trilinear_interpolation_weights.h"
 
@@ -10,6 +11,10 @@ void PIC_transfer(Eigen::VectorXd &q, Eigen::VectorXd &qdot, double h, int nx, i
 
     auto get_cell_indices = [&h](Vector3d position) -> Vector3i {
         return Vector3i(position(0) / h, position(1) / h, position(2) / h);
+    };
+
+    auto clamp = [](double x, double l, double h) -> double {
+        return std::max(std::min(x, h), l);
     };
 
 
@@ -29,9 +34,9 @@ void PIC_transfer(Eigen::VectorXd &q, Eigen::VectorXd &qdot, double h, int nx, i
             for (int b = 0; b < 2; b++) {
                 for (int c = 0; c < 2; c++) {
                     int w_idx = c + b * 2 + a * 4;
-                    velocity(0) += u(position_u(0) + a, position_u(1) + b, position_u(2) + c) * Wu_i(w_idx);
-                    velocity(1) += v(position_v(0) + a, position_v(1) + b, position_v(2) + c) * Wv_i(w_idx);
-                    velocity(2) += w(position_w(0) + a, position_w(1) + b, position_w(2) + c) * Ww_i(w_idx);
+                    velocity(0) += u(clamp(position_u(0) + a, 0, nx - 2), clamp(position_u(1) + b, 0, ny - 1), clamp(position_u(2) + c, 0, nz - 1)) * Wu_i(w_idx);
+                    velocity(1) += v(clamp(position_v(0) + a, 0, nx - 1), clamp(position_v(1) + b, 0, ny - 2), clamp(position_v(2) + c, 0, nz - 1)) * Wv_i(w_idx);
+                    velocity(2) += w(clamp(position_w(0) + a, 0, nx - 1), clamp(position_w(1) + b, 0, ny - 1), clamp(position_w(2) + c, 0, nz - 2)) * Ww_i(w_idx);
                 }
             }
         }
