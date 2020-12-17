@@ -19,6 +19,8 @@ void pressure_projection(Eigen::VectorXd &q, Eigen::VectorXd &qdot, double h, in
 
     construct_grid(q, qdot, h, nx, ny, nz, Wu, Wv, Ww, u, v, w, cell_state);
 
+    solid_boundary(u, v, w);
+
     // construct pressure
     Eigen::Tensor<double, 3> p(nx, ny, nz);
     p.setZero();
@@ -69,7 +71,6 @@ void pressure_projection(Eigen::VectorXd &q, Eigen::VectorXd &qdot, double h, in
         }
     }
 
-    solid_boundary(u, v, w);
 
     PIC_transfer(q, qdot, h, nx, ny, nz, Wu, Wv, Ww, u, v, w);
 }
