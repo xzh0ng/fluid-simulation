@@ -51,8 +51,12 @@ def construct_grid(q, qdot, nx, ny, h):
     return u, v, Wu, Wv, cell_states
 
 
-def external_force():
-    pass
+def external_force(q, qdot, f, dt):
+    if f.size() == 2:
+        for i in range(int(qdot.size() / 2)):
+            qdot[2 * i: 2 * i + 2] += f * dt
+    else:
+        qdot += f * dt
 
 def PIC_transfer(q, qdot, u, v, Wu, Wv, nx, ny, h):
     for i in range(len(q) // 2):
@@ -76,8 +80,11 @@ def pressure_projection():
 def soft_boundary():
     pass
 
-def solid_boundary():
-    pass
+def solid_boundary(u, v):
+    u[0, :][u[0, :] < 0] = 0
+    u[-1, :][u[-1, :] > 0] = 0
+    v[:, 0][v[:, 0] < 0] = 0
+    v[:, -1][v[:, -1] > 0] = 0
 
 def bilinear_interpolation_weight(nx, ny, h, p):
     idx = (p / h).astype(int)
