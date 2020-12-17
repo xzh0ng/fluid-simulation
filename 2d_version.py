@@ -46,8 +46,8 @@ def construct_grid(q, qdot, nx, ny, h):
         for a in range(2):
             for b in range(2):
                 w_idx = a * 2 + b
-                u(position_u[0] + a, position_u[1] + b) += wu_i[w_idx] * velocity[0]
-                v(position_v[0] + a, position_v[1] + b) += wu_i[w_idx] * velocity[1]
+                u[position_u[0] + a, position_u[1] + b] += wu_i[w_idx] * velocity[0]
+                v[position_v[0] + a, position_v[1] + b] += wu_i[w_idx] * velocity[1]
     return u, v, Wu, Wv, cell_states
 
 
