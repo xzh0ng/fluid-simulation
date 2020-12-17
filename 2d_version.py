@@ -37,8 +37,12 @@ def construct_grid(q, qdot, nx, ny, h):
 
 
 
-def external_force():
-    pass
+def external_force(q, qdot, f, dt):
+    if f.size() == 2:
+        for i in range(int(qdot.size() / 2)):
+            qdot[2 * i: 2 * i + 2] += f * dt
+    else:
+        qdot += f * dt
 
 def PIC_transfer():
     pass
