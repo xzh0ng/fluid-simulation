@@ -24,17 +24,17 @@ def construct_grid(q, qdot, nx, ny, h):
     v = np.zeros((nx, ny - 1))
     cell_states = np.zeros((nx, ny))
 
-    Wu = np.zeros(q.shape)
-    Wv = np.zeros(q.shape)
+    Wu = np.zeros(len(q) * 2)
+    Wv = np.zeros(len(q) * 2)
 
     for i in range(len(q) // 2):
         p = q[i * 2:i * 2 + 2]
         velocity = qdot[i * 2:i * 2 + 2]
-        position_u = get_cell_indices(p - np.array([0.5 * h, 0]))
-        position_v = get_cell_indices(p - np.array([0, 0.5 * h]))
-        position_p = get_cell_indices(p);
+        position_u = get_cell_indices(p - np.array([0.5 * h, 0]), h)
+        position_v = get_cell_indices(p - np.array([0, 0.5 * h]), h)
+        position_p = get_cell_indices(p, h);
 
-        cell_states(position_p[0], position_p[1]) = 1
+        cell_states[position_p[0], position_p[1]] = 1
 
 
         wu_i = bilinear_interpolation_weight(nx - 1, ny, h, p)
@@ -46,8 +46,8 @@ def construct_grid(q, qdot, nx, ny, h):
         for a in range(2):
             for b in range(2):
                 w_idx = a * 2 + b
-                u(position_u[0] + a, position_u[1] + b) += wu_i[w_idx] * velocity[0]
-                v(position_v[0] + a, position_v[1] + b) += wu_i[w_idx] * velocity[1]
+                u[position_u[0] + a, position_u[1] + b] += wu_i[w_idx] * velocity[0]
+                v[position_v[0] + a, position_v[1] + b] += wu_i[w_idx] * velocity[1]
     return u, v, Wu, Wv, cell_states
 
 
@@ -61,17 +61,17 @@ def external_force(q, qdot, f, dt):
 def PIC_transfer(q, qdot, u, v, Wu, Wv, nx, ny, h):
     for i in range(len(q) // 2):
         p = q[i * 2:i * 2 + 2]
-        position_u = get_cell_indices(p - np.array([0.5 * h, 0]))
-        position_v = get_cell_indices(p - np.array([0, 0.5 * h]))
-        position_p = get_cell_indices(p);
+        position_u = get_cell_indices(p - np.array([0.5 * h, 0]), h)
+        position_v = get_cell_indices(p - np.array([0, 0.5 * h]), h)
+        position_p = get_cell_indices(p, h);
 
         wu_i = Wu[4 * i: 4 * i + 5]
         wv_i = Wv[4 * i: 4 * i + 5]
         for a in range(2):
             for b in range(2):
                 w_idx = a * 2 + b
-                qdot[2 * i] = u(position_u[0] + a, position_u[1] + b) * wu_i[w_idx]
-                qdot[2 * i + 1] = v(position_v[0] + a, position_v[1] + b) * wv_i[w_idx]
+                qdot[2 * i] = u[position_u[0] + a, position_u[1] + b] * wu_i[w_idx]
+                qdot[2 * i + 1] = v[position_v[0] + a, position_v[1] + b] * wv_i[w_idx]
     
 
 def pressure_projection():
