@@ -49,7 +49,7 @@ void construct_grid(Eigen::VectorXd &q, Eigen::VectorXd &qdot, double h, int nx,
         Vector3i position_p = get_cell_indices(p);
 
         // set to liquid cell
-        cell_state(position_p(0), position_p(1), position_p(2)) = 1;
+        cell_state(clamp(position_p(0), 0, nx - 1), clamp(position_p(1), 0, ny - 1), clamp(position_p(2), 0, nz - 1)) = 1;
 
         VectorXd Wu_i(8), Wv_i(8), Ww_i(8);
         trilinear_interpolation_weights(nx - 1, ny, nz, h, p, Wu_i);
