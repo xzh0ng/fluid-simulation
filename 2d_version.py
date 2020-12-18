@@ -16,11 +16,11 @@ def advection(q, qdot, dt, h, nx, ny):
         if q[2 * i] < 0:
             q[2 * i] = 0
         if q[2 * i] > h * nx:
-            q[2 * i] = 0
+            q[2 * i] = h * nx - 1e-5
         if q[2 * i + 1] < 0:
             q[2 * i + 1] = 0
         if q[2 * i + 1] > h * ny:
-            q[2 * i + 1] = 0
+            q[2 * i + 1] = h * ny - 1e-5
 
 
 def construct_grid(q, qdot, nx, ny, h):
