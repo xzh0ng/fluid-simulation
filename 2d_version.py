@@ -109,7 +109,7 @@ def soft_boundary(p, cell_state):
                 p[i + 1, j] -= 0.5 * p[i, j]
             if j >= 1 and cell_state[i, j - 1] == 1:
                 p[i, j - 1] -= 0.5 * p[i, j]
-            if j + 1 <= p.shape[1] and cell_state[i, j + 1] == 1:
+            if j + 1 < p.shape[1] and cell_state[i, j + 1] == 1:
                 p[i, j + 1] -= 0.5 * p[i, j]
             
             p[i, j] = 0
@@ -149,6 +149,7 @@ dt = 0.01
 density = 1000
 q = np.zeros(n * 2)
 qdot = np.zeros(n * 2)
+q_prev = None
 for i in range(n):
     q[i * 2:2 * i + 2] = np.array([random.uniform(1 / 3 * nx * h, 2 / 3 * nx * h), 1 / 2 * h * ny])
 
@@ -161,9 +162,10 @@ particles, = ax.plot(q[::2], q[1::2], 'o', ms=20)
 
 
 def animate(i):
+    q_prev = q.copy()
     advection(q, qdot, dt, h, nx, ny)
     external_force(q, qdot, g, dt)
-    # pressure_projection(q, qdot, nx, ny, h, dt, density)
+    pressure_projection(q, qdot, nx, ny, h, dt, density)
     particles.set_data(q[::2], q[1::2])
     return particles
 
