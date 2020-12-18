@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import random
 
 
-
+def clamp(val, l, h):
+    return max(min(val, h), l)
 
 def get_cell_indices(position, h):
     return (position / h).astype(int)
@@ -51,8 +52,8 @@ def construct_grid(q, qdot, nx, ny, h):
         for a in range(2):
             for b in range(2):
                 w_idx = a * 2 + b
-                u[position_u[0] + a, position_u[1] + b] += wu_i[w_idx] * velocity[0]
-                v[position_v[0] + a, position_v[1] + b] += wu_i[w_idx] * velocity[1]
+                u[clamp(position_u[0] + a, 0, nx - 2), clamp(position_u[1] + a, 0, ny - 1)] += wu_i[w_idx] * velocity[0]
+                v[clamp(position_v[0] + a, 0, nx - 1), clamp(position_v[1] + b, 0, ny - 2)] += wu_i[w_idx] * velocity[1]
     return u, v, Wu, Wv, cell_states
 
 
@@ -73,8 +74,8 @@ def PIC_transfer(q, qdot, u, v, Wu, Wv, nx, ny, h):
         for a in range(2):
             for b in range(2):
                 w_idx = a * 2 + b
-                qdot[2 * i] = u[position_u[0] + a, position_u[1] + b] * wu_i[w_idx]
-                qdot[2 * i + 1] = v[position_v[0] + a, position_v[1] + b] * wv_i[w_idx]
+                qdot[2 * i] = u[clamp(position_u[0] + a, 0, nx - 2), clamp(position_u[1] + a, 0, ny - 1)] * wu_i[w_idx]
+                qdot[2 * i + 1] = v[clamp(position_v[0] + a, 0, nx - 1), clamp(position_v[1] + b, 0, ny - 2)] * wv_i[w_idx]
     
 
 def pressure_projection(q, qdot, nx, ny, h, dt, density):
@@ -142,7 +143,7 @@ def bilinear_interpolation_weight(corner, h, p):
 
 np.random.seed(19680801)
 nx, ny = 10, 10
-h = 1
+h = 0.1
 g = np.array([0, -9.8])
 n = 200
 dt = 0.01
@@ -151,14 +152,16 @@ q = np.zeros(n * 2)
 qdot = np.zeros(n * 2)
 q_prev = None
 for i in range(n):
-    q[i * 2:2 * i + 2] = np.array([random.uniform(1 / 3 * nx * h, 2 / 3 * nx * h), 1 / 2 * h * ny])
+    q[i * 2:2 * i + 2] = np.array([random.uniform(0, nx * h), 1 / 2 * h * ny])
+for i in range(n):
+    qdot[i * 2:2 * i + 2] = np.array([random.uniform(0, nx * h), random.uniform(0, nx * h)])
 
 
 
 # args for animation
 fig = plt.figure()
-ax = plt.axes(xlim=(0, 2), ylim=(-2, 2))
-particles, = ax.plot(q[::2], q[1::2], 'o', ms=20)
+ax = plt.axes(xlim=(0, nx * h), ylim=(0, ny * h))
+particles, = ax.plot(q[::2], q[1::2], 'o', ms=5)
 
 
 def animate(i):
