@@ -1,6 +1,9 @@
 import numpy as np
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
+import random
+
+
 
 
 def get_cell_indices(position, h):
@@ -54,11 +57,9 @@ def construct_grid(q, qdot, nx, ny, h):
 
 
 def external_force(q, qdot, f, dt):
-    if f.size() == 2:
-        for i in range(int(qdot.size() / 2)):
-            qdot[2 * i: 2 * i + 2] += f * dt
-    else:
-        qdot += f * dt
+    for i in range(len(q) // 2):
+        qdot[2 * i: 2 * i + 2] += f * dt
+
 
 def PIC_transfer(q, qdot, u, v, Wu, Wv, nx, ny, h):
     for i in range(len(q) // 2):
@@ -134,3 +135,40 @@ def bilinear_interpolation_weight(corner, h, p):
     # x + 1, y + 1
     weights[3] = ds[0] * ds[1]
     return weights
+
+
+
+
+
+np.random.seed(19680801)
+nx, ny = 10, 10
+h = 1
+g = np.array([0, -9.8])
+n = 200
+dt = 0.01
+density = 1000
+q = np.zeros(n * 2)
+qdot = np.zeros(n * 2)
+for i in range(n):
+    q[i:i + 2] = np.array([random.uniform(1 / 3 * nx * h, 2 / 3 * nx * h), 1 / 2 * h * ny])
+
+
+
+# args for animation
+fig = plt.figure()
+ax = plt.axes(xlim=(0, 2), ylim=(-2, 2))
+particles, = ax.plot(q[::2], q[1::2], 'o', ms=20)
+
+
+def animate(i):
+    advection(q, qdot, dt, h, nx, ny)
+    external_force(q, qdot, g, dt)
+    # pressure_projection(q, qdot, nx, ny, h, dt, density)
+    particles.set_data(q[::2], q[1::2])
+    return particles
+
+
+plt.xlim(0, nx * h)
+plt.ylim(0, ny * h)
+anim = animation.FuncAnimation(fig, animate, interval=10)
+plt.show()
