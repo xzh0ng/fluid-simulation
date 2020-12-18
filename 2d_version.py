@@ -84,8 +84,8 @@ def pressure_projection(q, qdot, nx, ny, h, dt, density):
 
     # construct p
     p = np.zeros((nx, ny))
-    p[1:nx - 1, :] = u[1:nx - 1, :] - u[0:nx - 2, :]
-    p[:, 1:ny - 1] = v[:, 1:ny - 1] - v[:, 0:ny - 2]
+    p[1:nx - 1, :] += u[1:nx - 1, :] - u[0:nx - 2, :]
+    p[:, 1:ny - 1] += v[:, 1:ny - 1] - v[:, 0:ny - 2]
     p /= h
 
     soft_boundary(p, cell_state)
