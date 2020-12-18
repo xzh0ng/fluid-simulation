@@ -63,6 +63,7 @@ def external_force(q, qdot, f, dt):
 
 
 def PIC_transfer(q, qdot, u, v, Wu, Wv, nx, ny, h):
+    qdot = np.zeros(qdot.shape)
     for i in range(len(q) // 2):
         p = q[i * 2:i * 2 + 2]
         position_u = get_cell_indices(p - np.array([0.5 * h, 0]), h)
@@ -74,8 +75,8 @@ def PIC_transfer(q, qdot, u, v, Wu, Wv, nx, ny, h):
         for a in range(2):
             for b in range(2):
                 w_idx = a * 2 + b
-                qdot[2 * i] = u[clamp(position_u[0] + a, 0, nx - 2), clamp(position_u[1] + a, 0, ny - 1)] * wu_i[w_idx]
-                qdot[2 * i + 1] = v[clamp(position_v[0] + a, 0, nx - 1), clamp(position_v[1] + b, 0, ny - 2)] * wv_i[w_idx]
+                qdot[2 * i] += u[clamp(position_u[0] + a, 0, nx - 2), clamp(position_u[1] + a, 0, ny - 1)] * wu_i[w_idx]
+                qdot[2 * i + 1] += v[clamp(position_v[0] + a, 0, nx - 1), clamp(position_v[1] + b, 0, ny - 2)] * wv_i[w_idx]
     
 
 def pressure_projection(q, qdot, nx, ny, h, dt, density):
