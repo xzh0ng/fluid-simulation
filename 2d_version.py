@@ -141,7 +141,7 @@ def bilinear_interpolation_weight(corner, h, p):
 
 
 
-np.random.seed(19680801)
+random.seed(19680801)
 nx, ny = 10, 10
 h = 0.1
 g = np.array([0, -9.8])
@@ -165,7 +165,6 @@ particles, = ax.plot(q[::2], q[1::2], 'o', ms=5)
 
 
 def animate(i):
-    q_prev = q.copy()
     advection(q, qdot, dt, h, nx, ny)
     external_force(q, qdot, g, dt)
     pressure_projection(q, qdot, nx, ny, h, dt, density)
