@@ -150,7 +150,7 @@ density = 1000
 q = np.zeros(n * 2)
 qdot = np.zeros(n * 2)
 for i in range(n):
-    q[i:i + 2] = np.array([random.uniform(1 / 3 * nx * h, 2 / 3 * nx * h), 1 / 2 * h * ny])
+    q[i * 2:2 * i + 2] = np.array([random.uniform(1 / 3 * nx * h, 2 / 3 * nx * h), 1 / 2 * h * ny])
 
 
 
