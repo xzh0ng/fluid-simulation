@@ -9,6 +9,7 @@
 #include "double_density_relaxation.h"
 #include "move_particles.h"
 #include "prep_for_next_step.h"
+#include "point_spheres.h"
 #include "constants.h"
 
 
@@ -19,7 +20,7 @@ using namespace std;
 int main(int argc, char** argv) {
 
     vector<shared_ptr<Particle>> particles;
-    RowVector3d color(0,0,0);
+    RowVector3d color(153, 255, 204);
     default_random_engine generator;
 
     const auto update = [&]() {
@@ -50,6 +51,30 @@ int main(int argc, char** argv) {
             particles.push_back(p);
         }
     };
+
+    auto sphere_generator = []() {
+        MatrixXd sphere;
+        Matrix<double, 1, 3> center;
+        center << 0.5 * canvas_x, 0.5 * canvas_y, 0.5 * canvas_z;
+        hedra::point_spheres(center, 0.5 * canvas_z, 20, sphere);
+        return sphere;
+    };
+    
+    auto scene_1 = [&]() {
+        particles.clear();
+        uniform_real_distribution<double> distribution(0.0, canvas_x);
+        MatrixXd sphere = sphere_generator();
+        for(int i = 0; i < sphere.rows(); i++) {
+            shared_ptr<Particle> p(new Particle(sphere(i, 0), sphere(i, 1), sphere(i, 2)));
+            particles.push_back(p);
+        }
+
+        for (int i = sphere.rows(); i < n; i++) {
+            shared_ptr<Particle> p(new Particle(distribution(generator), 0.2* distribution(generator), distribution(generator)));
+            particles.push_back(p);
+        }
+        
+    };
     
 
     igl::opengl::glfw::Viewer v;
@@ -61,6 +86,12 @@ int main(int argc, char** argv) {
         case 'q':
         {
             scene_0();
+            update();
+            break;
+        }
+        case 'w':
+        {
+            scene_1();
             update();
             break;
         }
@@ -81,7 +112,7 @@ int main(int argc, char** argv) {
         update();
         v.data().clear_points();
         for (int i = 0; i < n; i++) {
-            v.data().add_points((particles[i]->pos).transpose(), color);
+            v.data().add_points((particles[i]->pos).transpose(), color / 255);
         }
         return false;
     };
@@ -91,6 +122,7 @@ int main(int argc, char** argv) {
     v.core().is_animating = true;
     std::cout<< R"(
 q        change to scene 0
+w        change to scene 1
 r        reset particle position
 )";
     v.launch();
