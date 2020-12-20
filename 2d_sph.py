@@ -46,8 +46,8 @@ def calculate_density(particles):
             if q < 1:
                 particles[j].rho += (1 - q) ** 2
                 particles[j].rho_near += (1 - q) ** 3
-                d += particles[j].rho
-                dn += particles[j].rho_near
+                d += (1 - q) ** 2
+                dn += (1 - q) ** 3
                 particles[i].neighbors.append(particles[j])
     
         particles[i].rho += d
