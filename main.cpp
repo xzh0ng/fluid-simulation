@@ -32,19 +32,17 @@ int main(int argc, char** argv) {
 
     igl::opengl::glfw::Viewer v;
     v.callback_pre_draw = [&](igl::opengl::glfw::Viewer & )->bool
-    {   
+    {
         apply_gravity(particles);
         apply_viscosity(particles);
         move_particles(particles);
         double_density_relaxation(particles);
         apply_displacements(particles);
         prep_for_next_step(particles);
-        Matrix<double, n, 3> pts;
+        v.data().clear_points();
         for (int i = 0; i < n; i++) {
-            pts.row(i) = (particles[i]->pos).transpose();
+            v.data().add_points((particles[i]->pos).transpose(), color);
         }
-        
-        v.data().set_points(pts, color);
         return false;
     };
 
