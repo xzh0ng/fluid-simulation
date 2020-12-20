@@ -19,6 +19,7 @@ void calculate_density(std::vector<std::shared_ptr<Particle>> &particles) {
                 particles[j]->rho += pow(1 - q, 2);
                 #pragma omp atomic update
                 particles[j]->rho_near += pow(1 - q, 3);
+                #pragma omp critical
                 particles[i]->neighbors.push_back(particles[j]);
                 i_rho += pow(1 - q, 2);
                 i_rho_near += pow(1 - q, 3);
