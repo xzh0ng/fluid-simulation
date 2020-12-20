@@ -4,18 +4,18 @@ import matplotlib.animation as animation
 import random
 
 gravity = np.array([0, -0.005])
-h = 0.1
+h = 0.08
 k_near = 0.0005
-k = k_near / 10
+k = k_near / 100
 rho_0 = 3.0
 dt = 1
 random.seed(1)
-n = 200
+n = 400
 particles = []
 canvas_width = 1
 canvas_height = 1
 damp = 0.5
-sigma = 0.3
+sigma = 0.1
 beta = 1
 
 class particle:
@@ -121,19 +121,20 @@ def double_density_relaxation(particles):
     calculate_pressure(particles)
 
 
-
-for i in range(n):
-    p = particle(x=random.uniform(1 / 3 * canvas_width, 2 / 3 * canvas_width), y=random.uniform(0, canvas_height))
-    particles.append(p)
-
-
 fig = plt.figure()
 axes = fig.add_subplot(xlim=(0, canvas_width), ylim=(0, canvas_height))
 points, = axes.plot([], [], 'bo', ms=10)
-frame = 0
 
 
+curr_n = 0
 def animate(i):
+    global curr_n
+    if curr_n < n:
+        for i in range(10):
+            p = particle(x=random.uniform(1 / 3 * canvas_width, 2 / 3 * canvas_width), y=random.uniform(2 / 3 * canvas_width, canvas_width))
+            particles.append(p)
+        curr_n += 10
+
     apply_gravity(particles)
     apply_viscosity(particles)
     move_particles(particles)
