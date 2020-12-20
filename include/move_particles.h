@@ -1,7 +1,7 @@
 #ifndef __MOVE_PARTICLES_H__
 #define __MOVE_PARTICLES_H__
 #include <Eigen/Core>
-#include <Vector>
+#include <vector>
 #include <memory>
 #include "constants.h"
 #include "particle.h"

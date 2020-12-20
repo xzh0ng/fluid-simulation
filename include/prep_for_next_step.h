@@ -1,7 +1,7 @@
 #ifndef __PREP_FOR_NEXT_STEP_H__
 #define __PREP_FOR_NEXT_STEP_H__
 #include <Eigen/Core>
-#include <Vector>
+#include <vector>
 #include <memory>
 #include "constants.h"
 #include "particle.h"

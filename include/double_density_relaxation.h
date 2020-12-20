@@ -1,7 +1,7 @@
 #ifndef __DOUBLE_DENSITY_RELAXATION_H__
 #define __DOUBLE_DENSITY_RELAXATION_H__
 #include <Eigen/Core>
-#include <Vector>
+#include <vector>
 #include <memory>
 #include "constants.h"
 #include "particle.h"
