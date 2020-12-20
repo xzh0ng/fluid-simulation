@@ -1,7 +1,9 @@
 #include "prep_for_next_step.h"
 
 void prep_for_next_step(std::vector<std::shared_ptr<Particle>> &particles) {
-    for (auto & p : particles) {
+    #pragma omp parallel for
+    for (int i = 0; i < particles.size(); i++) {
+        std::shared_ptr<Particle> &p = particles[i];
         p->v = (p->pos - p->prev_pos) / dt;
 
         if (p->pos(0) <= 0) {

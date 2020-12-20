@@ -2,7 +2,9 @@
 using namespace Eigen;
 
 void apply_displacements(std::vector<std::shared_ptr<Particle>> &particles) {
-    for (auto & i : particles) {
+    #pragma omp parallel for schedule(dynamic)
+    for (int a = 0; a < particles.size(); a++) {
+        std::shared_ptr<Particle> &i = particles[a];
         Vector3d dx = Vector3d::Zero();
         for (auto & j : i->neighbors) {
             Vector3d r_ij = j->pos - i->pos;

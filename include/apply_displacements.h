@@ -3,6 +3,7 @@
 #include <vector>
 #include <Eigen/Core>
 #include <memory>
+#include <omp.h>
 #include "particle.h"
 #include "constants.h"
 

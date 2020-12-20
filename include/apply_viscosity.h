@@ -2,6 +2,7 @@
 #define __APPLY_VISCOSITY_H__
 #include <Eigen/Core>
 #include <vector>
+#include <omp.h>
 #include <memory>
 #include "constants.h"
 #include "particle.h"
