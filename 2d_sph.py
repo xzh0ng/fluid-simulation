@@ -34,8 +34,6 @@ class particle:
 
 def calculate_density(particles):
     for i in range(len(particles)):
-        d = 0
-        dn = 0
         for j in range(len(particles)):
             if i >= j:
                 continue
@@ -46,12 +44,9 @@ def calculate_density(particles):
             if q < 1:
                 particles[j].rho += (1 - q) ** 2
                 particles[j].rho_near += (1 - q) ** 3
-                d += (1 - q) ** 2
-                dn += (1 - q) ** 3
                 particles[i].neighbors.append(particles[j])
-    
-        particles[i].rho += d
-        particles[i].rho_near += dn
+                particles[i].rho += (1 - q) ** 2
+                particles[i].rho_near += (1 - q) ** 3
 
 def calculate_pressure(particles):
     for p in particles:
