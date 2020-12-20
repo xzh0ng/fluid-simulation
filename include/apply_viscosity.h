@@ -1,7 +1,7 @@
 #ifndef __APPLY_VISCOSITY_H__
 #define __APPLY_VISCOSITY_H__
 #include <Eigen/Core>
-#include <Vector>
+#include <vector>
 #include <memory>
 #include "constants.h"
 #include "particle.h"
