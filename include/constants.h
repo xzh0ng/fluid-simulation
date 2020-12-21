@@ -5,8 +5,8 @@
 #define g -0.0005
 #define h 0.08
 #define k_near 0.0005
-#define k (k_near / 100)
-#define rho_0 3.0
+#define k (k_near / 1000)
+#define rho_0 2.0
 #define dt 1.0
 #define damp 0.5
 #define sigma 0.1
