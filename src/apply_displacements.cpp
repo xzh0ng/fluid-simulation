@@ -23,10 +23,10 @@ void apply_displacements(std::vector<std::shared_ptr<Particle>> &particles) {
             }
         }
         #pragma omp atomic update
-        i->pos(0) = i->pos(0) + dx(0);
+        i->pos(0) += dx(0);
         #pragma omp atomic update
-        i->pos(1) = i->pos(1) + dx(1);
+        i->pos(1) += dx(1);
         #pragma omp atomic update
-        i->pos(2) = i->pos(2) + dx(2);
+        i->pos(2) += dx(2);
     }
 }
