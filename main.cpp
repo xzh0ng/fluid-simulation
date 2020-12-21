@@ -1,8 +1,8 @@
 #include <Eigen/Core>
 #include <iostream>
-#define IGL_VIEWER_VIEWER_QUIET
 #include <igl/opengl/glfw/Viewer.h>
 #include <igl/readOBJ.h>
+#include <igl/combine.h>
 #include <random>
 #include "apply_displacements.h"
 #include "apply_gravity_and_viscosity.h"
@@ -26,6 +26,9 @@ int main(int argc, char** argv) {
     igl::readOBJ("../data/bunny.obj", bunny_v, _);
     igl::readOBJ("../data/sphere.obj", sphere_v, _);
     igl::readOBJ("../data/tension.obj", tension_v, _);
+    MatrixXd particle_v;
+    MatrixXi particle_f;
+    igl::readOBJ("../data/particle.obj", particle_v, particle_f);
 
     const auto update = [&]() {
         apply_gravity_and_viscosity(particles);
@@ -126,19 +129,19 @@ int main(int argc, char** argv) {
     {
         switch(key)
         {
-        case 'q':
+        case '1':
         {
             scene_0();
             update();
             break;
         }
-        case 'w':
+        case '2':
         {
             scene_1();
             update();
             break;
         }
-        case 'e':
+        case '3':
         {
             scene_2();
             update();
@@ -150,13 +153,13 @@ int main(int argc, char** argv) {
             update();
             break;
         }
-        case 't':
+        case '4':
         {
             scene_3();
             update();
             break;
         }
-        case 'y':
+        case '5':
         {
             scene_4();
             update();
@@ -171,23 +174,33 @@ int main(int argc, char** argv) {
     v.callback_pre_draw = [&](igl::opengl::glfw::Viewer & )->bool
     {
         update();
-        v.data().clear_points();
+        MatrixXd pv;
+        MatrixXi pf; 
+        vector<MatrixXd> vs;
+        vector<MatrixXi> fs;
         for (int i = 0; i < n; i++) {
-            v.data().add_points((particles[i]->pos).transpose(), color / 255);
+            MatrixXd curr;
+            curr.resize(particle_v.rows(), particle_v.cols());
+            curr << particle_v.rowwise() + (particles[i]->pos).transpose();
+            vs.push_back(curr);
+            fs.push_back(particle_f);
         }
+        igl::combine(vs, fs, pv, pf);
+        v.data().set_mesh(pv, pf);
         return false;
     };
 
     reset_position();
     v.data().point_size = 4;
     v.core().is_animating = true;
-    std::cout<< R"(
-q        drop in mid air
-w        big sphere
-e        double dam
-r        heavy rain drop(maybe)
-t        bunny drop
-y        tension demo
+    std::cout<<
+R"(
+  1        drop in mid air
+  2        big sphere
+  3        double dam
+  4        bunny drop
+  5        tension demo
+  r        random reset
 )";
     v.launch();
     return 0;
