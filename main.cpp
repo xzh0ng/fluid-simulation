@@ -22,8 +22,9 @@ int main(int argc, char** argv) {
     vector<shared_ptr<Particle>> particles;
     RowVector3d color(153, 255, 204);
     default_random_engine generator;
-    MatrixXd bunny_v, _;
+    MatrixXd bunny_v, sphere_v, _;
     igl::readOBJ("../data/bunny.obj", bunny_v, _);
+    igl::readOBJ("../data/sphere.obj", sphere_v, _);
 
     const auto update = [&]() {
         apply_gravity_and_viscosity(particles);
@@ -55,34 +56,16 @@ int main(int argc, char** argv) {
         }
     };
 
-    auto sphere_generator = [](double radius, int res) {
-        MatrixXd sphere;
-        Matrix<double, 1, 3> center;
-        center << 0, 0.5 * canvas_y, 0;
-        hedra::point_spheres(center, radius, res, sphere);
-        return sphere;
-    };
     
     // sphere dropping from sky
     auto scene_1 = [&]() {
         particles.clear();
+        for (int i = 0; i < sphere_v.rows(); i++) {
+            shared_ptr<Particle> p(new Particle(sphere_v(i, 0), sphere_v(i, 1), sphere_v(i, 2)));
+            particles.push_back(p);
+        }
         uniform_real_distribution<double> distribution(-canvas_x, canvas_x);
-        MatrixXd sphere = sphere_generator(0.5 * canvas_y, 20);
-        int total_sphere_pts = 0;
-        for(int i = 0; i < sphere.rows(); i++) {
-            shared_ptr<Particle> p(new Particle(sphere(i, 0), sphere(i, 1), sphere(i, 2)));
-            particles.push_back(p);
-        }
-        total_sphere_pts += sphere.rows();
-
-        sphere = sphere_generator(0.3 * canvas_y, 10);
-        for(int i = 0; i < sphere.rows(); i++) {
-            shared_ptr<Particle> p(new Particle(sphere(i, 0), sphere(i, 1), sphere(i, 2)));
-            particles.push_back(p);
-        }
-        total_sphere_pts += sphere.rows();
-
-        for (int i = total_sphere_pts; i < n; i++) {
+        for (int i = sphere_v.rows(); i < n; i++) {
             shared_ptr<Particle> p(new Particle(distribution(generator), 0.2 * abs(distribution(generator)), distribution(generator)));
             particles.push_back(p);
         }
