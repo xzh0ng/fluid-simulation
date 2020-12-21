@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
     igl::readOBJ("../data/particle.obj", particle_v, particle_f);
     Matrix<unsigned char,Eigen::Dynamic,Eigen::Dynamic> R,G,B,A;
     igl::png::readPNG("../data/texture.png",R,G,B,A);
-    double scale = 1;
+    double scale = 0.5;
 
     const auto update = [&]() {
         apply_gravity_and_viscosity(particles);
