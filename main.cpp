@@ -22,9 +22,10 @@ int main(int argc, char** argv) {
     vector<shared_ptr<Particle>> particles;
     RowVector3d color(153, 255, 204);
     default_random_engine generator;
-    MatrixXd bunny_v, sphere_v, _;
+    MatrixXd bunny_v, sphere_v, tension_v, _;
     igl::readOBJ("../data/bunny.obj", bunny_v, _);
     igl::readOBJ("../data/sphere.obj", sphere_v, _);
+    igl::readOBJ("../data/tension.obj", tension_v, _);
 
     const auto update = [&]() {
         apply_gravity_and_viscosity(particles);
@@ -106,6 +107,19 @@ int main(int argc, char** argv) {
         }
     };
 
+    auto scene_4 = [&]() {
+        particles.clear();
+        for (int i = 0; i < tension_v.rows(); i++) {
+            shared_ptr<Particle> p(new Particle(tension_v(i, 0), tension_v(i, 1), tension_v(i, 2)));
+            particles.push_back(p);
+        }
+        uniform_real_distribution<double> distribution(-canvas_x, canvas_x);
+        for (int i = tension_v.rows(); i < n; i++) {
+            shared_ptr<Particle> p(new Particle(distribution(generator), 0.2 * abs(distribution(generator)), distribution(generator)));
+            particles.push_back(p);
+        }
+    };
+
     igl::opengl::glfw::Viewer v;
     
     v.callback_key_pressed = [&](igl::opengl::glfw::Viewer &, unsigned int key, int mod)
@@ -142,6 +156,12 @@ int main(int argc, char** argv) {
             update();
             break;
         }
+        case 'y':
+        {
+            scene_4();
+            update();
+            break;
+        }
         default:
             return false;
         }
@@ -159,14 +179,15 @@ int main(int argc, char** argv) {
     };
 
     reset_position();
-    v.data().point_size = 2;
+    v.data().point_size = 4;
     v.core().is_animating = true;
     std::cout<< R"(
-q        change to scene 0
-w        change to scene 1
-e        change to scene 2
-r        reset particle position
-t        change to scene 3
+q        drop in mid air
+w        big sphere
+e        double dam
+r        heavy rain drop(maybe)
+t        bunny drop
+y        tension demo
 )";
     v.launch();
     return 0;
