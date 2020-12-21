@@ -16,6 +16,7 @@
 #include <iostream>
 
 
+// modified from https://github.com/avaxman/libhedra/blob/master/include/hedra/point_spheres.h
 namespace hedra
 {
   // creates small spheres to visualize points on the overlay of the mesh
