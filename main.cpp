@@ -5,8 +5,7 @@
 #include <igl/readOBJ.h>
 #include <random>
 #include "apply_displacements.h"
-#include "apply_gravity.h"
-#include "apply_viscosity.h"
+#include "apply_gravity_and_viscosity.h"
 #include "double_density_relaxation.h"
 #include "move_particles.h"
 #include "prep_for_next_step.h"
@@ -27,8 +26,7 @@ int main(int argc, char** argv) {
     igl::readOBJ("../data/bunny.obj", bunny_v, _);
 
     const auto update = [&]() {
-        apply_gravity(particles);
-        apply_viscosity(particles);
+        apply_gravity_and_viscosity(particles);
         move_particles(particles);
         double_density_relaxation(particles);
         apply_displacements(particles);

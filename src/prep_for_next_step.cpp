@@ -32,8 +32,6 @@ void prep_for_next_step(std::vector<std::shared_ptr<Particle>> &particles) {
             p->pos(2) = canvas_z;
             if (p->v(2) > 0) p->v(2) *= -1 * damp;
         }
-        p->rho = 0;
-        p->rho_near = 0;
-        p->neighbors.clear();
+        
     }
 }

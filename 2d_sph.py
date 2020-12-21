@@ -74,6 +74,10 @@ def move_particles(particles):
     for p in particles:
         p.prev_pos = p.pos
         p.pos = p.pos + dt * p.v
+        
+        p.rho = 0
+        p.rho_near = 0
+        p.neighbors = []
 
 
 def apply_viscosity(particles):
@@ -107,9 +111,7 @@ def prep_for_next_step(particles):
             p.pos[1] = canvas_height
             if p.v[1] > 0:
                 p.v[1] *= -1 * damp
-        p.rho = 0
-        p.rho_near = 0
-        p.neighbors = []
+        
 
 def double_density_relaxation(particles):
     calculate_density(particles)
