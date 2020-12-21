@@ -21,6 +21,7 @@ ENDIF()
 option(LIBIGL_USE_STATIC_LIBRARY     "Use libigl as static library" OFF)
 option(LIBIGL_WITH_OPENGL            "Use OpenGL"         ON)
 option(LIBIGL_WITH_OPENGL_GLFW       "Use GLFW"           ON)
+option(LIBIGL_WITH_PNG               "Use PNG"            ON)
 
 find_package(LIBIGL REQUIRED)
 
@@ -34,8 +35,8 @@ endif()
 file(GLOB HEADER include/*.h)
 
 add_library(core ${SRCFILES} ${HEADER})
-target_link_libraries(core igl::core igl::opengl igl::opengl_glfw )
+target_link_libraries(core igl::core igl::opengl igl::opengl_glfw igl::png)
 
 add_executable(${PROJECT_NAME} "main.cpp")
 add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
-target_link_libraries(${PROJECT_NAME} core igl::core igl::opengl igl::opengl_glfw)
+target_link_libraries(${PROJECT_NAME} core igl::core igl::opengl igl::opengl_glfw igl::png)

@@ -1,6 +1,7 @@
 #include <Eigen/Core>
 #include <iostream>
 #include <igl/opengl/glfw/Viewer.h>
+#include <igl/png/readPNG.h>
 #include <igl/readOBJ.h>
 #include <igl/combine.h>
 #include <random>
@@ -29,6 +30,8 @@ int main(int argc, char** argv) {
     MatrixXd particle_v;
     MatrixXi particle_f;
     igl::readOBJ("../data/particle.obj", particle_v, particle_f);
+    Matrix<unsigned char,Eigen::Dynamic,Eigen::Dynamic> R,G,B,A;
+    igl::png::readPNG("../data/texture.png",R,G,B,A);
     double scale = 1;
 
     const auto update = [&]() {
@@ -201,12 +204,14 @@ int main(int argc, char** argv) {
         }
         igl::combine(vs, fs, pv, pf);
         v.data().set_mesh(pv, pf);
+        v.data().set_texture(R,G,B,A);
+        v.data().use_matcap = true;
         return false;
     };
 
     reset_position();
-    v.data().point_size = 4;
     v.core().is_animating = true;
+    v.data().use_matcap = true;
     std::cout<<
 R"(
   1        drop in mid air

@@ -8,7 +8,7 @@
 #define k (k_near / 10)
 #define rho_0 1.0
 #define dt 1.0
-#define damp 0.5
+#define damp 1.0
 #define sigma 0.1
 #define beta 1.0
 #define canvas_x 0.4
