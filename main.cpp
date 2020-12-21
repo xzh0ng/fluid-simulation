@@ -67,16 +67,12 @@ int main(int argc, char** argv) {
     // sphere dropping from sky
     auto scene_1 = [&]() {
         particles.clear();
-        for (int i = 0; i < sphere_v.rows(); i++) {
-            shared_ptr<Particle> p(new Particle(sphere_v(i, 0), sphere_v(i, 1), sphere_v(i, 2)));
+        for (int i = 0; i < n; i++) {
+            Vector3d curr_position = Vector3d::Random();
+            while (curr_position.norm() > canvas_x) curr_position = Vector3d::Random();
+            shared_ptr<Particle> p(new Particle(curr_position(0), 0.5 * canvas_y + curr_position(1), curr_position(2)));
             particles.push_back(p);
         }
-        uniform_real_distribution<double> distribution(-canvas_x, canvas_x);
-        for (int i = sphere_v.rows(); i < n; i++) {
-            shared_ptr<Particle> p(new Particle(distribution(generator), 0.2 * abs(distribution(generator)), distribution(generator)));
-            particles.push_back(p);
-        }
-        
     };
 
     // double dam
