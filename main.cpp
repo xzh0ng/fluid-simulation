@@ -10,7 +10,6 @@
 #include "double_density_relaxation.h"
 #include "move_particles.h"
 #include "prep_for_next_step.h"
-#include "point_spheres.h"
 #include "constants.h"
 
 
