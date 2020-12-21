@@ -34,13 +34,15 @@ int main(int argc, char** argv) {
 
     auto reset_position = [&]() {
         particles.clear();
-        uniform_real_distribution<double> distribution(0.0, canvas_x);
+        uniform_real_distribution<double> x_z_distribution(-canvas_x, canvas_x);
+        uniform_real_distribution<double> distribution(0, canvas_y);
         for (int i = 0; i < n; i++) {
-            shared_ptr<Particle> p(new Particle(distribution(generator), distribution(generator), distribution(generator)));
+            shared_ptr<Particle> p(new Particle(x_z_distribution(generator), distribution(generator), x_z_distribution(generator)));
             particles.push_back(p);
         }
     };
 
+    
     auto scene_0 = [&]() {
         particles.clear();
         uniform_real_distribution<double> x_distribution(0.5 * canvas_x, canvas_x);
@@ -52,30 +54,60 @@ int main(int argc, char** argv) {
         }
     };
 
-    auto sphere_generator = []() {
+    auto sphere_generator = [](double radius, int res) {
         MatrixXd sphere;
         Matrix<double, 1, 3> center;
-        center << 0.5 * canvas_x, 0.5 * canvas_y, 0.5 * canvas_z;
-        hedra::point_spheres(center, 0.5 * canvas_z, 20, sphere);
+        center << 0, 0.5 * canvas_y, 0;
+        hedra::point_spheres(center, radius, res, sphere);
         return sphere;
     };
     
+    // sphere dropping from sky
     auto scene_1 = [&]() {
         particles.clear();
-        uniform_real_distribution<double> distribution(0.0, canvas_x);
-        MatrixXd sphere = sphere_generator();
+        uniform_real_distribution<double> distribution(-canvas_x, canvas_x);
+        MatrixXd sphere = sphere_generator(0.5 * canvas_y, 20);
+        int total_sphere_pts = 0;
         for(int i = 0; i < sphere.rows(); i++) {
             shared_ptr<Particle> p(new Particle(sphere(i, 0), sphere(i, 1), sphere(i, 2)));
             particles.push_back(p);
         }
+        total_sphere_pts += sphere.rows();
 
-        for (int i = sphere.rows(); i < n; i++) {
-            shared_ptr<Particle> p(new Particle(distribution(generator), 0.2* distribution(generator), distribution(generator)));
+        sphere = sphere_generator(0.3 * canvas_y, 10);
+        for(int i = 0; i < sphere.rows(); i++) {
+            shared_ptr<Particle> p(new Particle(sphere(i, 0), sphere(i, 1), sphere(i, 2)));
+            particles.push_back(p);
+        }
+        total_sphere_pts += sphere.rows();
+
+        for (int i = total_sphere_pts; i < n; i++) {
+            shared_ptr<Particle> p(new Particle(distribution(generator), 0.2 * abs(distribution(generator)), distribution(generator)));
             particles.push_back(p);
         }
         
     };
-    
+
+    // double dam
+    auto scene_2 = [&]() {
+        particles.clear();
+        uniform_real_distribution<double> x_distribution(0.3 * canvas_x, canvas_x);
+        uniform_real_distribution<double> y_distribution(0, canvas_y);
+        uniform_real_distribution<double> z_distribution(0.3 * canvas_z, canvas_z);
+        for (int i = 0; i < n / 2; i++) {
+            shared_ptr<Particle> p(new Particle(x_distribution(generator), y_distribution(generator), z_distribution(generator)));
+            particles.push_back(p);
+        }
+
+        uniform_real_distribution<double> x_distribution2(-0.3 * canvas_x, -canvas_x);
+        uniform_real_distribution<double> y_distribution2(0, canvas_y);
+        uniform_real_distribution<double> z_distribution2(-0.3 * canvas_z, - canvas_z);
+        for (int i = n / 2; i < n; i++) {
+            shared_ptr<Particle> p(new Particle(x_distribution2(generator), y_distribution2(generator), z_distribution2(generator)));
+            particles.push_back(p);
+        }
+    };
+
 
     igl::opengl::glfw::Viewer v;
     
@@ -92,6 +124,12 @@ int main(int argc, char** argv) {
         case 'w':
         {
             scene_1();
+            update();
+            break;
+        }
+        case 'e':
+        {
+            scene_2();
             update();
             break;
         }
@@ -118,11 +156,12 @@ int main(int argc, char** argv) {
     };
 
     reset_position();
-    v.data().point_size = 10;
+    v.data().point_size = 2;
     v.core().is_animating = true;
     std::cout<< R"(
 q        change to scene 0
 w        change to scene 1
+e        change to scene 2
 r        reset particle position
 )";
     v.launch();
