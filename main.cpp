@@ -29,6 +29,7 @@ int main(int argc, char** argv) {
     MatrixXd particle_v;
     MatrixXi particle_f;
     igl::readOBJ("../data/particle.obj", particle_v, particle_f);
+    double scale = 1;
 
     const auto update = [&]() {
         apply_gravity_and_viscosity(particles);
@@ -124,6 +125,7 @@ int main(int argc, char** argv) {
     };
 
     igl::opengl::glfw::Viewer v;
+    v.data().show_lines = false;
     
     v.callback_key_pressed = [&](igl::opengl::glfw::Viewer &, unsigned int key, int mod)
     {
@@ -165,6 +167,18 @@ int main(int argc, char** argv) {
             update();
             break;
         }
+        case 'w':
+            scale *= 2;
+            particle_v *= scale;
+            std::cout<<"  scale increased"<< scale << std::endl;
+            update();
+            break;
+        case 's':
+            scale *= 0.5;
+            particle_v *= scale;
+            std::cout<<"  scale decreased"<< scale << std::endl;
+            update();
+            break;
         default:
             return false;
         }
@@ -201,6 +215,7 @@ R"(
   4        bunny drop
   5        tension demo
   r        random reset
+w,s        change scale of particle
 )";
     v.launch();
     return 0;
