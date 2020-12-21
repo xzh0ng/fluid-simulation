@@ -22,10 +22,8 @@ int main(int argc, char** argv) {
     vector<shared_ptr<Particle>> particles;
     RowVector3d color(153, 255, 204);
     default_random_engine generator;
-    MatrixXd bunny_v, sphere_v, tension_v, _;
+    MatrixXd bunny_v, _;
     igl::readOBJ("../data/bunny.obj", bunny_v, _);
-    igl::readOBJ("../data/sphere.obj", sphere_v, _);
-    igl::readOBJ("../data/tension.obj", tension_v, _);
     MatrixXd particle_v;
     MatrixXi particle_f;
     igl::readOBJ("../data/particle.obj", particle_v, particle_f);
@@ -51,12 +49,12 @@ int main(int argc, char** argv) {
         }
     };
 
-    
+    // single dam
     auto scene_0 = [&]() {
         particles.clear();
         uniform_real_distribution<double> x_distribution(0.5 * canvas_x, canvas_x);
-        uniform_real_distribution<double> y_distribution(0.5 * canvas_y, canvas_y);
-        uniform_real_distribution<double> z_distribution(0, canvas_z);
+        uniform_real_distribution<double> y_distribution(0, canvas_y);
+        uniform_real_distribution<double> z_distribution(0.5 * canvas_z, canvas_z);
         for (int i = 0; i < n; i++) {
             shared_ptr<Particle> p(new Particle(x_distribution(generator), y_distribution(generator), z_distribution(generator)));
             particles.push_back(p);
@@ -109,15 +107,18 @@ int main(int argc, char** argv) {
         }
     };
 
+    // small sphere dropping
     auto scene_4 = [&]() {
         particles.clear();
-        for (int i = 0; i < tension_v.rows(); i++) {
-            shared_ptr<Particle> p(new Particle(tension_v(i, 0), tension_v(i, 1), tension_v(i, 2)));
+        for (int i = 0; i < 200; i++) {
+            Vector3d curr_position = Vector3d::Random();
+            while (curr_position.norm() > 0.3 *canvas_x) curr_position = Vector3d::Random();
+            shared_ptr<Particle> p(new Particle(curr_position(0), 0.5 * canvas_y + curr_position(1), curr_position(2)));
             particles.push_back(p);
         }
         uniform_real_distribution<double> distribution(-canvas_x, canvas_x);
-        for (int i = tension_v.rows(); i < n; i++) {
-            shared_ptr<Particle> p(new Particle(distribution(generator), 0.2 * abs(distribution(generator)), distribution(generator)));
+        for (int i = 200; i < n; i++) {
+            shared_ptr<Particle> p(new Particle(distribution(generator), 0.4 * abs(distribution(generator)), distribution(generator)));
             particles.push_back(p);
         }
     };
@@ -209,7 +210,7 @@ int main(int argc, char** argv) {
     v.data().use_matcap = true;
     std::cout<<
 R"(
-  1        drop in mid air
+  1        single dam
   2        big sphere
   3        double dam
   4        bunny drop
