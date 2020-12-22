@@ -1,7 +1,7 @@
 # fluid-simulation (CSC417 Final Project)
 
 ### Demo
-https://www.youtube.com/watch?v=qvc2eybSBxM
+https://www.youtube.com/watch?v=XkXg6B8tpwc
 
 ### Dependencies
 * `Eigen`
